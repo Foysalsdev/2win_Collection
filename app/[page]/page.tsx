@@ -1,7 +1,8 @@
+export const runtime = 'edge';
 import type { Metadata } from "next";
 
 import Prose from "components/prose";
-import { getPage } from "lib/shopify";
+import { getPage } from "lib/supabase";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata(props: {

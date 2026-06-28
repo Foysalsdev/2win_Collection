@@ -1,4 +1,5 @@
-import { getCollections, getPages, getProducts } from "lib/shopify";
+export const runtime = 'edge';
+import { getCollections, getPages, getProducts } from "lib/supabase";
 import { baseUrl, validateEnvironmentVariables } from "lib/utils";
 import { MetadataRoute } from "next";
 

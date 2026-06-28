@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { baseUrl } from "lib/utils";
 
 export default function robots() {
