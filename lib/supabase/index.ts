@@ -13,10 +13,21 @@ import {
   ProductVariant,
 } from "./types";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+let _supabase: ReturnType<typeof createClient> | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+function getClient() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return _supabase;
+}
+
+export const supabase = {
+  from: (table: string) => getClient().from(table) as any,
+};
 
 // ─── CART ─────────────────────────────────────────────────────────────────────
 
@@ -103,9 +114,10 @@ async function buildCart(cartId: string): Promise<Cart | undefined> {
 }
 
 export async function createCart(): Promise<Cart> {
-  const { data } = await supabase.from("carts").insert({}).select().single();
+  const { data } = await supabase.from("carts").insert([{}] as any).select().single();
+  const cartData = data as any;
   return {
-    id: data.id,
+    id: cartData?.id,
     checkoutUrl: "/checkout",
     cost: {
       subtotalAmount: { amount: "0.00", currencyCode: "BDT" },
