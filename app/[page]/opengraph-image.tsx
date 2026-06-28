@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import OpengraphImage from "components/opengraph-image";
 import { getPage } from "lib/supabase";
 
