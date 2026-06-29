@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import Grid from "components/grid";
 import ProductGridItems from "components/layout/product-grid-items";
 import { defaultSort, sorting } from "lib/constants";

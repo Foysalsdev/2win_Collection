@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import { CartProvider } from "components/cart/cart-context";
 import { Navbar } from "components/layout/navbar";
 import { WelcomeToast } from "components/welcome-toast";
