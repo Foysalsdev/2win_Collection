@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import { getCollection, getCollectionProducts } from "lib/supabase";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
