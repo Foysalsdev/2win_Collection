@@ -13,14 +13,21 @@ import {
   ProductVariant,
 } from "./types";
 
+// Public anon credentials (safe to expose, mirrors wrangler.toml [vars]).
+// Used as a fallback so static prerendering doesn't crash on build
+// environments that don't forward NEXT_PUBLIC_* vars to `next build`.
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://nlbhocbdvhqmfsdlfevb.supabase.co";
+const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sYmhvY2JkdmhxbWZzZGxmZXZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MjM0OTIsImV4cCI6MjA5ODE5OTQ5Mn0.xyWCsR-CnhvDhRFUBuhs_1u-ISPx0l5OwxvUbvgeEmw";
+
 let _supabase: ReturnType<typeof createClient> | null = null;
 
 function getClient() {
   if (!_supabase) {
-    _supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
   return _supabase;
 }
@@ -54,7 +61,7 @@ async function buildCart(cartId: string): Promise<Cart | undefined> {
           featured_image_height
         )
       )
-    `
+    `,
     )
     .eq("cart_id", cartId);
 
@@ -97,7 +104,7 @@ async function buildCart(cartId: string): Promise<Cart | undefined> {
   const totalQuantity = lines.reduce((sum, l) => sum + l.quantity, 0);
   const subtotal = lines.reduce(
     (sum, l) => sum + Number(l.cost.totalAmount.amount),
-    0
+    0,
   );
 
   return {
@@ -114,7 +121,11 @@ async function buildCart(cartId: string): Promise<Cart | undefined> {
 }
 
 export async function createCart(): Promise<Cart> {
-  const { data } = await supabase.from("carts").insert([{}] as any).select().single();
+  const { data } = await supabase
+    .from("carts")
+    .insert([{}] as any)
+    .select()
+    .single();
   const cartData = data as any;
   return {
     id: cartData?.id,
@@ -144,7 +155,7 @@ export async function getCart(): Promise<Cart | undefined> {
 }
 
 export async function addToCart(
-  lines: { merchandiseId: string; quantity: number }[]
+  lines: { merchandiseId: string; quantity: number }[],
 ): Promise<Cart> {
   const cartId = (await cookies()).get("cartId")?.value!;
 
@@ -180,7 +191,7 @@ export async function removeFromCart(lineIds: string[]): Promise<Cart> {
 }
 
 export async function updateCart(
-  lines: { id: string; merchandiseId: string; quantity: number }[]
+  lines: { id: string; merchandiseId: string; quantity: number }[],
 ): Promise<Cart> {
   const cartId = (await cookies()).get("cartId")?.value!;
 
@@ -197,7 +208,7 @@ export async function updateCart(
 // ─── COLLECTIONS ──────────────────────────────────────────────────────────────
 
 export async function getCollection(
-  handle: string
+  handle: string,
 ): Promise<Collection | undefined> {
   const { data } = await supabase
     .from("collections")
@@ -338,7 +349,7 @@ async function buildProduct(p: any): Promise<Product> {
           amount: String(v.price),
           currencyCode: v.currency_code || currency,
         },
-      })
+      }),
     ),
     featuredImage: {
       url: p.featured_image_url || "",
@@ -381,10 +392,7 @@ export async function getProducts({
   reverse?: boolean;
   sortKey?: string;
 }): Promise<Product[]> {
-  let q = supabase
-    .from("products")
-    .select("*")
-    .eq("available_for_sale", true);
+  let q = supabase.from("products").select("*").eq("available_for_sale", true);
 
   if (query) {
     q = q.ilike("title", `%${query}%`);
@@ -404,7 +412,7 @@ export async function getProducts({
 }
 
 export async function getProductRecommendations(
-  productId: string
+  productId: string,
 ): Promise<Product[]> {
   const { data } = await supabase
     .from("products")
